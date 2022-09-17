@@ -1,0 +1,27 @@
+﻿id,BranchId,typeName,timeStart,timeEnd, amount 
+1,1,Makan Siang,12,16,13000
+2,1,Makan Malam,18,22,13000
+3,1,Makan Tengah Malam,0,4,13000
+4,2,Makan Siang,12,16,13000
+5,2,Makan Malam,18,22,13000
+6,2,Makan Tengah Malam,0,4,13000
+7,3,Sarapan,6,10,16000
+8,3,Makan Siang,12,16,16000
+9,3,Makan Malam,18,22,16000
+10,3,Makan Tengah Malam,0,4,16000
+11,4,Sarapan,6,10,16000
+12,4,Makan Siang,12,16,16000
+13,4,Makan Malam,18,22,16000
+14,4,Makan Tengah Malam,0,4,16000
+15,5,Sarapan,6,10,16000
+16,5,Makan Siang,12,16,16000
+17,5,Makan Malam,18,22,16000
+18,5,Makan Tengah Malam,0,4,16000
+19,6,Sarapan,6,10,16000
+20,6,Makan Siang,12,16,16000
+21,6,Makan Malam,18,22,16000
+22,6,Makan Tengah Malam,0,4,16000
+23,7,Sarapan,6,10,16000
+24,7,Makan Siang,12,16,16000
+25,7,Makan Malam,18,22,16000
+26,7,Makan Tengah Malam,0,4,16000
