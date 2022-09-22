@@ -10,33 +10,41 @@
 
 // console.log(CC);
 
-// let data = [
-//     {
-//         nama: "Budi",
-//         umur : 30,
-//         nilai: 78
-//     },
-//     {
-//         nama: "Anton",
-//         umur : 30,
-//         nilai: 95
-//     },
-//     {
-//         nama: "Budi",
-//         umur : 30,
-//         nilai: 92
-//     },
-//     {
-//         nama: "Andre",
-//         umur : 30,
-//         nilai: 82
-//     },
-//     {
-//         nama: "Anton",
-//         umur : 30,
-//         nilai: 99
-//     },
-// ]
+let data = [
+    {
+        nama: "Budi",
+        umur : 30,
+        nilai: 78
+    },
+    {
+        nama: "Anton",
+        umur : 30,
+        nilai: 95
+    },
+    {
+        nama: "Budi",
+        umur : 30,
+        nilai: 92
+    },
+    {
+        nama: "Andre",
+        umur : 30,
+        nilai: 82
+    },
+    {
+        nama: "Anton",
+        umur : 30,
+        nilai: 99
+    },
+]
+
+// let hasil = data.filter(e => e.nama == "Budi")
+let hasil = []
+data.map(e => {
+    if(e.nama == "Budi") hasil.push(e)
+})
+console.log(hasil);
+
 
 // let penm = []
 // data.forEach(e => {
@@ -75,7 +83,7 @@
 // console.log();
 // console.log('====================================');
 
-let a = "14:02"
-let b = "14:01"
+// let a = "14:02"
+// let b = "14:01"
 
-if(b <= a) console.log("yes");
+// if(b <= a) console.log("yes");
