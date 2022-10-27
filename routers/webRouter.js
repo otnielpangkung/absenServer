@@ -4,22 +4,23 @@ const AdminAutenticate = require('../middleware/AdminAutenticate');
 // user
 webRouter.get('/user',  WebController.getAllUser);
 webRouter.post('/login', WebController.login);
-webRouter.post('/user', WebController.addUser);
-webRouter.delete('/user/:id', WebController.deleteUser);
+webRouter.post('/user',AdminAutenticate, WebController.addUser);
+webRouter.delete('/user/:id',AdminAutenticate, WebController.deleteUser);
 webRouter.patch('/password',AdminAutenticate, WebController.changePassword);
 
 // Employee
-webRouter.get('/employee', WebController.getTableEmployee);
-webRouter.get('/allemployee', WebController.getEmployees);
-webRouter.post('/employee', WebController.addEmployee);
-webRouter.delete('/employee/:id', WebController.deleteEmployeee);
+webRouter.get('/employee',AdminAutenticate, WebController.getTableEmployee);
+webRouter.get('/allemployee',AdminAutenticate, WebController.getEmployees);
+webRouter.post('/employee',AdminAutenticate, WebController.addEmployee);
+webRouter.delete('/employee/:id',AdminAutenticate, WebController.deleteEmployeee);
+webRouter.put('/employee/:id',AdminAutenticate, WebController.editEmployee);
 
 // absen
-webRouter.get('/absenrecap', WebController.getBranchAbsen);
-webRouter.get('/absenuser', WebController.getUserAbsen);
-webRouter.post('/absenmanual', WebController.addManualAbsen);
-webRouter.delete("/branch/:id", WebController.deleteBranch)
-webRouter.patch('/status/:id', WebController.changeStatusAbsen)
+webRouter.get('/absenrecap',AdminAutenticate, WebController.getBranchAbsen);
+webRouter.get('/absenuser',AdminAutenticate, WebController.getUserAbsen);
+webRouter.post('/absenmanual',AdminAutenticate, WebController.addManualAbsen);
+webRouter.delete("/branch/:id",AdminAutenticate, WebController.deleteBranch)
+webRouter.patch('/status/:id',AdminAutenticate, WebController.changeStatusAbsen)
 
 // webRouter.get("/")
 
@@ -34,7 +35,15 @@ webRouter.get("/typeabsen", WebController.getTypeAbsen)
 webRouter.get("/tabletypeabsen", WebController.getTableTypeAbsen)
 webRouter.post("/typeabsen", WebController.addTypeAbsen)
 webRouter.put("/typeabsen/:id", WebController.editTypeAbsen)
+webRouter.delete("/typeabsen/:id", WebController.deleteTypeAbsen)
 
+
+webRouter.get("/photo", WebController.deletePhoto)
+
+
+// print
+webRouter.get("/print/branch", WebController.branchAbsenPrint)
+webRouter.get("/print/personal", WebController.employeeAbsenPrint)
 
 
 module.exports = webRouter;

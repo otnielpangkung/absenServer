@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
 			typeInput: DataTypes.STRING,
 			statusAbsen: DataTypes.STRING,
 			detail: DataTypes.TEXT,
-			absenPic: DataTypes.BLOB,
+			absenPic: DataTypes.STRING,
 			amount: DataTypes.INTEGER,
 		},
 		{

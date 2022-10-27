@@ -2,12 +2,16 @@ const { tokenGenerate, cekToken } = require('../helper/token');
 const { User } = require('../models');
 
 async function AdminAutenticate(req, res, next) {
+	console.log("--------------------------------");
 	try {
 		const { access_token } = req.headers;
+		// console.log(access_token, "++++sss");
 		if (access_token) {
 			const decoded = cekToken(access_token);
+			// console.log(decoded,"======");
 			let data = await User.findOne({
 				where: {
+					id: decoded.id,
 					username: decoded.username,
 				},
 			});
