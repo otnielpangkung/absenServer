@@ -18,7 +18,11 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^2.3.3",
+<<<<<<< HEAD
     "node": "^18.9.0",
+=======
+    "node": "^19.0.0",
+>>>>>>> fe291ab6292e13c9a90160dc284cd0b582842bea
     "sequelize": "^6.21.3"
   },
   "devDependencies": {

@@ -10,7 +10,6 @@ const moment = require('moment')
 
 class MobileController {
 	static login(req, res) {
-		console.log("Teeess");
 		// console.log('masuk login', req.body.lokasi);
 		Employee.findOne({
 			where: {
@@ -18,24 +17,22 @@ class MobileController {
 			},
 		})
 			.then((data) => {
-				console.log(data.password);
 				if (data) {
-					console.log(data.password);
+					// console.log(data.password);
 					// let password = cekPass(req.body.password, data.password);
 					// /cons/ole.log(password);
 					if (data.password) {
-						console.log("Tesss");
 						let user = {
 							username: data.username,
 							id: data.id,
 						};
 						let access_token = tokenGenerate(user);
+						console.log(access_token);
 						res.status(200).json({
 							id: data.id,
 							username: data.username,
 							access_token: access_token,
 						});
-						// res.status(200).json(data)
 					} else {
 						res.status(401).json({ msg: 'poaswword/username salah' });
 					}
@@ -62,114 +59,151 @@ class MobileController {
 		console.log("Teeess");
 		console.log('====================================');
 	}
-	static addAbsen(req,res) {
-		// console.log(req, "==========");
-		console.log(req.file, "==========");
-		// let thisTime = new Date()
-		// let getTime = moment(thisTime).format('HH:MM')
-		// let hourTime = +moment(thisTime).format('HH')
-		// let dateTime = moment(thisTime).format('YYYY:MM:DD')
+	static async addAbsen(req,res) {
+		
+		try {
+			console.log("Masuuuk mobil");
+			let barcode = JSON.parse(req.body.barcode)
+			let lokasi = JSON.parse(req.body.lokasi)
+			let id = +JSON.parse(req.body.id)
+			let access_token = cekToken(req.headers.access_token)
+			let thisTime = new Date()
+			let getTime = moment(thisTime).format('HH:mm')
+			let dateTime = moment(thisTime).format('YYYY-MM-DD')
 
-		// TypeAbsen.findOne({
-		// 	where: {
-		// 		BranchId: req.body.BranchId,
-		// 		timeStart: {
-		// 			[Op.gte]: hourTime,
-		// 			[Op.lt]: hourTime 
-		// 		}
-		// 	}
-		// }).then(data => {
-		// 	Branch.findOne({
-		// 		where: {
-		// 			id: req.body.BranchId
-		// 		}
-		// 	}).then(data5 => {
-		// 		if((+req.body.latitude + 0.0001) >= +data5.latitude && (+req.body.latitude - 0.0001) <= +data5.latitude && 
-		// 		(+req.body.longitude + 0.0001) >= +data5.longitude && (+req.body.longitude - 0.0001) <= +data5.longitude) {
-		// 			console.log("Berada di Lokasi");
-		// 			if(!data) {
-		// 				return res.status(401).json({msg : "Waktu Absen Anda Tidak Ditemukan"})
-		// 			} else {
-		// 				console.log("Masuk Jam Absen");
-		// 				Absen.findOne({
-		// 					where: {
-		// 						TypeAbsenId: data.id,
-		// 						EmployeeId: req.body.EmployeeId,
-		// 						date: dateTime,
-		// 					}
-		// 				})
-		// 				.then(data2 => {
-		// 					if(data2) {
-		// 						res.status(401).json({msg : "Anda Telah Melakukan Absen"})
-		// 					}
-		// 					else {
-								
-		// 						console.log("Absen Belum ada, silahkan lanjut record Absen");
-		// 						Absen.create({
-		// 							TypeAbsenId: data.id,
-		// 							EmployeeId: req.body.EmployeeId,
-		// 							date: dateTime,
-		// 							absenPic: req.files.filename,
-		// 							BranchId: req.body.BranchId,
-		// 							time: getTime,
-		// 							amount : data.amount
-		// 						})
-		// 						.then(data3 => {
-		// 							res.status(200).json({
-		// 								data: data3,
-		// 								msg: "Data Berhasil diTambahkan"})
-		// 						})
-		// 						.catch(err => {
-		// 							res.status(401).json(err)
-		// 						})
-		// 					}
-		// 				})
-		// 				.catch(err => {
-		// 					res.status(401).json(err)
-		// 				})
-		// 			}
-		// 		} else {
-		// 			return res.status(401).json({msg : "Anda tidak berada di Lokasi"})
-		// 		}
-		// 	}).catch(err => {
-		// 		res.status(401).json(err)
-		// 	})	
-		// })
-		// .catch(err => {
-		// 	res.status(401).json(err)
-		// })		
+			let data = await Branch.findOne({
+				where: {
+					id: barcode.id
+				}
+			})
+			if(!data) {
+				// console.log("44");
+				throw {
+					status: 500,
+					msg: "Lokasi Tidak Ditemukan"
+				}
+			}  else if(data && ((+lokasi.latitude + 0.003) >= +data.latitude && (+lokasi.latitude - 0.003) <= +data.latitude && 
+            (+lokasi.longitude + 0.0003) >= +data.longitude && (+lokasi.longitude - 0.0003) <= +data.longitude)) {
+				
+				let data2 = await TypeAbsen.findAll({
+					where: {
+						BranchId: data.id
+					}
+				})
+				// console.log(data2,"==data2");
+				let penm = data2.filter(e => (e.timeStart <= getTime && e.timeEnd >= getTime))
+				console.log(penm);
+				
+				let data99 = await Absen.findAll({
+                    where: {
+                        EmployeeId: id,
+                        date: dateTime
+                    }
+                })
+				data99?.map(e => {
+					if(e.time >= penm[0].timeStart && e.time <= penm[0].timeEnd) {
+						
+						throw {
+							status: 500,
+							msg: "Sudah Melakukan Absen"
+						}
+					}
+				})
+				if(penm.length < 1) {
+					throw {
+						status: 500,
+						msg: "Waktu Absen Tidak Ditemukan"
+					}
+                } 
+				let data3 = await Absen.findAll({
+					where: {
+						BranchId: data.id,
+						TypeAbsenId: penm[0].id,
+						EmployeeId: id
+					}
+				})
+				let penm2 = data3.filter(e => (e.date == dateTime))
+				if(penm2.length >= 1) {
+					throw {
+						status: 500,
+						msg: "Sudah Melakukan Absen"
+					}
+				}
+				let data4 = await Absen.create({
+					EmployeeId: id,
+					BranchId: data.id,
+					TypeAbsenId: penm[0].id,
+					time: getTime,
+					date: dateTime,
+					amount: penm[0].amount,
+					realLocation : `${lokasi.latitude}, ${lokasi.longitude}`,
+					typeInput: "mobile",
+					absenPic: req.file.filename
+				})
+				return res.status(200).json({msg: "Berhasil"})
+				
+			} else {
+				return res.status(500).json({msg: "Gagal"})
+
+			}
+
+		} catch(err) {
+			console.log(err);
+			return res.status(500).json({msg: "Gagal"})
+		}
+		
+	}
+	static lastAbsen(req,res) {
+		let access_token = cekToken(req.headers.access_token)
+		console.log(access_token.id);
+		// console.log(access_token);
+		Absen.findAll({
+			order: [['id','desc']],
+			attributes: {exclude: ['createdAt', 'updatedAt','absenPic']},
+			where: {
+				EmployeeId: access_token.id
+			},
+			include: [
+				{
+					model: TypeAbsen,
+					attributes: { 
+						exclude: ['createdAt', 'updatedAt','amount','timeStart','timeEnd']
+					}
+				},
+				{
+					model: Branch,
+					attributes: { 
+						exclude: ['createdAt', 'updatedAt','longitude', 'latitude','rekNumber' ]
+					}
+				},
+				{
+					model: Employee,
+					attributes: { 
+						exclude: ['createdAt', 'updatedAt','password' ]
+					}
+				},
+			]
+		})
+		.then(data => {
+			let hasil = []
+			let penm = data.slice(0,4)
+			data.map(e => {
+				let a = {
+					'Nama Karyawan': e.Employee.employeeName,
+					Lokasi: e.Branch.branchName,
+					typeAbsen: e.TypeAbsen.typeName,
+					date: e.date,
+					time: e.time
+				}
+				hasil.push(a)
+			})
+			res.status(200).json(hasil)
+		}).catch(err => {
+			console.log(err);
+			res.status(404).json(err)
+		})
 	}
 
-	// static addAbsen(req,res) {
-	// 	console.log(req.files, "=======================");
-	// 	console.log(req.file.filename, "++=======================");
-	// 	console.log(req.body, "------------");
-	// 	TypeAbsen.findOne({
-	// 		where: {
-	// 			id: req.body.addTypeAbsenId				
-	// 		}
-	// 	}).then(data => {
-	// 		Absen.create({
-	// 			EmployeeId: req.body.addEmployeeId,
-	// 			BranchId: data.addBranchId,
-	// 			TypeAbsenId: data.addTypeAbsenId,
-	// 			date: req.body.date,
-	// 			time: req.body.time,
-	// 			detail: req.body.detail,
-	// 			typeInput: "manual",
-	// 			amount: data.amount,
-	// 		}).then(data => {
-	// 			res.status(200).json(data)
-	// 		})
-	// 		.catch(err => {
-	// 			res.status(404).json(err)
-	// 		})
-
-	// 	}).catch((err) => {
-	// 		res.status(500).json(err);
-	// 	});
-
-	// }
 }
 
 module.exports = MobileController;

@@ -4,11 +4,12 @@ const { bcryptPass, cekPass } = require('../helper/bcrypt');
 const { tokenGenerate, cekToken } = require('../helper/token');
 const absen = require('../models/absen');
 const {Op} = require('sequelize')
-
+const fs = require("fs")
 
 class WebController {
 	// user
 	static login(req, res) {
+		console.log("tess");
 		console.log('masuk login', req.body);
 		User.findOne({
 			where: {
@@ -19,7 +20,7 @@ class WebController {
 				if (data) {
 					let password = cekPass(req.body.password, data.password);
 					if (password) {
-						// console.log("Tesss");
+						console.log("Tesss");
 						let user = {
 							username: data.username,
 							id: data.id,
@@ -104,7 +105,6 @@ class WebController {
 	}
 	// Employee
 	static getTableEmployee(req, res) {
-		console.log(req.query.page, "====");
 		Employee.findAll({
 			attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
 			order: [['id', 'desc']]
@@ -130,7 +130,7 @@ class WebController {
 		// console.log("=========================");
 		// tanpa pagenation
 		Employee.findAll({
-			attributes: { exclude: ['password'] },
+			attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
 			order: [['id', 'desc']]
 		}).then(data => {
 			// console.log(data);
@@ -184,10 +184,10 @@ class WebController {
 	}
 
 	static editEmployee(req,res) {
+		console.log("eee");
 		Employee.update({
 			employeeName: req.body.employeeName,
 			position: req.body.position,
-			username: req.body.username,
 		}, {
 			where: {
 				id: req.params.id
@@ -202,11 +202,11 @@ class WebController {
 		})
 			
 	}
-	// Absen
 
+	// Absen
 	static getBranchAbsen(req, res) {
 	// menampilkan rekap absen sebulan dari tiap cabang
-	// console.log(req.query);
+	console.log(req.query);
 	let month = req.query.month
 	let year = req.query.year
 		Absen.findAll({
@@ -223,27 +223,28 @@ class WebController {
 			data?.map(e => {
 				if(month == moment(e.date).format("MM") && year == moment(e.date).format("YYYY") && e.statusAbsen == 'setuju') {
 					total += e.amount
-					penm.push(e)
+					penm.push(e.dataValues)
 				}
 			})
+			// console.log(penm);
 			let penampung = []
-			penm?.map(e => {
-				let y = 0
-				penampung.map(x => {
-					// console.log(x, "==============");
-					if(e.EmployeeId == x.EmployeeId) {
-						if(e.statusAbsen == 'setuju') {
-							x.amount += e.amount
+			for(let i = 0; i < penm.length; i++) {
+				let flag = false
+				for(let j=0; j < penampung.length; j++) {
+					if(penampung[j].EmployeeId == penm[i].EmployeeId) {
+						if(penm[i].statusAbsen == 'setuju') {
+							flag = true
+							penampung[j].amount += penm[i].amount
+							penampung[j].count++
+							break
 						}
-						y++
-						x.count++
 					}
-				})
-				if(y == 0) {
-					e['count'] = 1;
-					penampung.push(e)
 				}
-			})
+				if(!flag) {
+					penm[i].count = 1
+					penampung.push(penm[i])
+				}
+			}
 			// console.log(penampung[0].count);
 			let dataLength = penampung.length;
 			const startIndex = (req.query.page - 1) * req.query.limit;
@@ -254,16 +255,18 @@ class WebController {
 			})
 		})
 		.catch(err => {
-			res.status(200).json(err)
+			res.status(500).json(err)
 		})
 	}
 
 	static getUserAbsen(req, res) {
-		console.log(req.query);
+		// console.log(req.query.UserId, "====");
+		// console.log(req.query.year,"--=----");
 		let month = req.query.month
 		let year = req.query.year
 		Absen.findAll({
 			include: [TypeAbsen,Branch],
+			attributes: { exclude: ['createdAt', 'updatedAt'] },
 			where: {
 				EmployeeId: req.query.EmployeeId
 			}
@@ -271,16 +274,19 @@ class WebController {
 			let penm= []
 			let total = 0
 			let kehadiran = 0
-			// console.log(data);
 			data?.map(e => {
+				if( +year == +moment(e.date).format("YYYY")) {
+					console.log(moment(e.date).format("YYYY"));
+				}
 				if(month == moment(e.date).format("MM") && year == moment(e.date).format("YYYY")) {
-					if(e.status == "setuju") {
+					if(e.statusAbsen == "setuju") {
 						total += e.amount
 					}
 					penm.push(e)
 				}
 			})
 			kehadiran = penm.length
+			console.log(total, "total");
 			// console.log(kehadiran,"===");
 			let dataLength = kehadiran;
 			const startIndex = (req.query.page - 1) * req.query.limit;
@@ -289,9 +295,13 @@ class WebController {
 				res.status(200).json({
 				total, result, dataLength
 			})
+		}).catch(err => {
+			console.log(err);
+			res.status(500).json(err)
 		})
 	}
 	static	addManualAbsen(req,res) {
+		let x = 0
 		// untuk tambahkan absen secara manual
 		console.log(req.body);
 		TypeAbsen.findOne({
@@ -300,38 +310,62 @@ class WebController {
 			}
 		})
 		.then(data => {
-			console.log(data.amount);
-			console.log("Yayaya");
-			console.log( req.body.detail, 
-				//  req.body.detail,
-				
-				//  data.id
-			);
-			Absen.create({
-				EmployeeId: req.body.addEmployeeId,
-				BranchId: req.body.addBranchId,
-				TypeAbsenId: req.body.addTypeAbsenId,
-				date: req.body.date,
-				time: req.body.time,
-				detail: req.body.detail,
-				typeInput: "manual",
-				amount: data.amount,
-			}).then(data => {
-				console.log("yes");
-				res.status(200).json(data)
-			}).catch((err) => {
+			TypeAbsen.findOne({
+				where: {
+					id: req.body.addTypeAbsenId
+				}
+			}).then(data2 => {
+				// if(req.body.time < data2.timeStart || req.body.time > data2.timeEnd) {
+					// 	console.log("gagagaaaalll");
+					// 	return res.status(401).json({msg: "Periksa Kembali data anda"})
+					// }
+				Absen.findAll({
+					where: {
+						date: req.body.date,
+						EmployeeId: req.body.addEmployeeId,
+					}
+				}).then(data3 => {
+					// console.log(data3,"data3");
+					console.log(req.body.time , data2.timeStart , req.body.time, data2.timeEnd);
+					data3?.map(e => {
+						if(e.time > data2.timeStart && e.time < data2.timeEnd) {
+							console.log("gagaaal");
+							return res.status(401).json({msg: "Periksa Kembali data anda"})
+							// return res.status(401).json({msg: "Periksa Kembali data anda"})
+						}
+					})
+					Absen.create({
+						EmployeeId: req.body.addEmployeeId,
+						BranchId: req.body.addBranchId,
+						TypeAbsenId: req.body.addTypeAbsenId,
+						date: req.body.date,
+						time: req.body.time,
+						detail: req.body.detail,
+						typeInput: "manual",
+						amount: data.amount,
+					}).then(data => {
+						console.log("yes");
+						res.status(200).json(data)
+					}).catch((err) => {
+						console.log(err);
+						res.status(500).json(err);
+					});
+				}).catch(err => {
+					console.log(err, "1");
+					res.status(500).json(err);
+				})
+			})
+			.catch(err => {
 				console.log(err);
 				res.status(500).json(err);
-			});
-
+			})
 		}).catch((err) => {
 			res.status(500).json(err);
 		});
 		
 	}
 	static changeStatusAbsen(req, res) {
-		console.log("============");
-		console.log(req.params.id);
+		console.log("+++");
 		Absen.findOne({
 			where: {
 				id: req.params.id
@@ -418,7 +452,6 @@ class WebController {
 	}
 
 	static editBranch(req,res) {
-		console.log(req.body.longtitude, "==================");
 		Branch.update({
 			branchName: req.body.branchName,
 			longtitude: req.body.longtitude,
@@ -449,7 +482,6 @@ class WebController {
 		})
 	}
 	static getTableTypeAbsen(req,res) {
-		console.log(req.query);
 		TypeAbsen.findAll({
 			order: [['BranchId', 'asc']],
 			include: [Branch]
@@ -470,6 +502,13 @@ class WebController {
 		})
 	}
 	static addTypeAbsen(req,res) {
+		let id = 0
+		TypeAbsen.findAll({
+			order: [['id','desc']]
+		})
+		.then(data => {
+			id = data[0].id+1
+		})
 		console.log(req.body);
 		TypeAbsen.findAll({
 			where: {
@@ -492,6 +531,7 @@ class WebController {
 			if(x == 0) {
 				console.log("----ss");
 				TypeAbsen.create({
+					// id: id,
 					typeName: req.body.typeName,
 					BranchId: req.body.BranchId,
 					timeStart: req.body.timeStart,
@@ -507,6 +547,9 @@ class WebController {
 			} else {
 				res.status(500).json({msg: "Gagal"});
 			}
+		}).catch(err => {
+			console.log(err);
+			res.status(401).json(err)
 		})
 
 	}
@@ -529,6 +572,187 @@ class WebController {
 			res.status(500).json(err);
 		})
 	}
+	static deleteTypeAbsen(req,res) {
+		Absen.destroy({
+			where: {
+				TypeAbsenId: req.params.id
+			}
+		}).then(data => {
+			TypeAbsen.destroy({
+				where: {
+					id: req.params.id
+				}
+			}).then(data => {
+				res.status(201).json({msg: "Berhasil"})
+			}).catch(err => {
+				res.status(500).json(err)
+			})
+		}).catch(err => {
+			console.log(err);
+			res.status(500).json(err)
+		})
+	}
+	static deletePhoto(req,res) {
+		let thisDate = new Date()
+		let nowDate = moment(thisDate).format("YYYY-MM-DD")
+		let lessDate = thisDate.setDate(thisDate.getDate() - 45)
+		// let lessDate = thisDate.setDate(thisDate.getDate())
+		lessDate= moment(lessDate).format("YYYY-MM-DD") 
+		let penm = []
+		Absen.findAll()
+		.then(data => {
+			// console.log("yeeeees deleted");
+			data?.map(e => {
+				if(e.absenPic != null && e.date <= lessDate) {
+					console.log(e.absenPic);
+					fs.unlinkSync(`./uploads/${e.absenPic}`)
+					Absen.update({
+						absenPic: null
+					}, {
+						where: {
+							id: e.id
+						}
+					})
+				}
+			})
+			// console.log(data);
+		}).catch(err => {
+			console.log(err);
+			res.status(400).json(err)
+		})
+
+	}
+
+	// Print
+
+	static branchAbsenPrint(req,res) {
+		let month = req.query.month
+		let year = req.query.year
+		Absen.findAll({
+			attributes:{ exclude: ['typeInput','realLocation','absenPic','detail','createdAt','updatedAt' ]},
+			where: {
+				BranchId: req.query.BranchId
+			},
+			include: [
+				{
+					model: Employee,
+					attributes: {exclude: ['createdAt', 'updatedAt', 'password', 'status']}
+				},
+				{
+					model: Branch,
+					attributes: {exclude: ['createdAt', 'updatedAt','rekNumber', 'latitude', 'longitude','detail']}
+				}
+			],
+		})
+		.then(data => {
+			// console.log(data, "==============");
+			let penm = []
+			let total = 0
+			data?.map(e => {
+				if(month == moment(e.date).format("MM") && year == moment(e.date).format("YYYY") && e.statusAbsen == 'setuju') {
+					total += e.amount
+					penm.push(e.dataValues)
+				}
+			})
+			// console.log(penm);
+			let penampung = []
+			for(let i = 0; i < penm.length; i++) {
+				let flag = false
+				for(let j=0; j < penampung.length; j++) {
+					if(penampung[j].EmployeeId == penm[i].EmployeeId) {
+						if(penm[i].statusAbsen == 'setuju') {
+							flag = true
+							penampung[j].amount += penm[i].amount
+							penampung[j].count++
+							break
+						}
+					}
+				}
+				if(!flag) {
+					penm[i].count = 1
+					penampung.push(penm[i])
+				}
+			}
+			let result = []
+			penampung.map(e => {
+				let s = {
+					'Nama Pegawai' : e.Employee.employeeName,
+					Posisi: e.Employee.position,
+					Kehadiran: e.count,
+					Jumlah: e.amount
+				}
+				result.push(s)
+			})
+				res.status(200).json(result)
+		})
+		.catch(err => {
+			res.status(500).json(err)
+		})
+	}
+	static employeeAbsenPrint(req,res) {
+		let month = req.query.month
+		let year = req.query.year
+		Absen.findAll({
+			order: [['date','desc'],['id','asc']],
+			attributes: { exclude: ['createdAt', 'updatedAt'] },
+			where: {
+				EmployeeId: req.query.EmployeeId
+			},
+			include: [
+				{
+					model: TypeAbsen,
+					attributes: {exclude: ['createdAt', 'updatedAt','BranchId','amount','timeStart', 'timeEnd',]}
+				},
+				{
+					model: Branch,
+					attributes: {exclude: ['createdAt', 'updatedAt','longitude','latitude','detail','rekNumber']}
+				},
+				{
+					model: Employee,
+					attributes: {exclude: ['createdAt', 'updatedAt', 'password','position','status']}
+				},
+				
+			],
+		}).then(data => {
+			let result = []
+			let penm= []
+			let total = 0
+			let kehadiran = 0
+			data?.map(e => {
+				if( +year == +moment(e.date).format("YYYY")) {
+				}
+				if(month == moment(e.date).format("MM") && year == moment(e.date).format("YYYY")) {
+					if(e.statusAbsen == "setuju") {
+						total += e.amount
+					}
+					penm.push(e)
+				}
+			})
+			penm.map(e => {
+				
+				let a = {
+					'Nama Pegawai' : e.Employee.employeeName,
+					tanggal: e.date,
+					Lokasi: e.Branch.branchName,
+					'Jenis Absen': e.TypeAbsen.typeName,
+					'Jam Absen': e.time
+
+				}
+				result.push(a)
+			})
+
+			kehadiran = penm.length
+
+			let dataLength = kehadiran;
+				res.status(200).json(result)
+		}).catch(err => {
+			console.log(err);
+			res.status(500).json(err)
+		})
+	}
+
 }
+
+
 
 module.exports = WebController;

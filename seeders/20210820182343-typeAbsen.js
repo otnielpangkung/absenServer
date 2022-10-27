@@ -11,7 +11,7 @@ module.exports = {
         "timeStart": "12:00",
         "timeEnd": "16:00",
         "amount": 13000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -21,7 +21,7 @@ module.exports = {
         "timeStart": "18:00",
         "timeEnd": "22:00",
         "amount": 13000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -31,7 +31,7 @@ module.exports = {
         "timeStart": "00:00",
         "timeEnd": "04:00",
         "amount": 13000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -41,7 +41,7 @@ module.exports = {
         "timeStart": "12:00",
         "timeEnd": "16:00",
         "amount": 13000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -51,7 +51,7 @@ module.exports = {
         "timeStart": "18:00",
         "timeEnd": "22:00",
         "amount": 13000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -61,7 +61,7 @@ module.exports = {
         "timeStart": "00:00",
         "timeEnd": "04:00",
         "amount": 13000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -71,7 +71,7 @@ module.exports = {
         "timeStart": "06:00",
         "timeEnd": "10:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -81,7 +81,7 @@ module.exports = {
         "timeStart": "12:00",
         "timeEnd": "16:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -91,7 +91,7 @@ module.exports = {
         "timeStart": 18,
         "timeEnd": 22,
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -101,7 +101,7 @@ module.exports = {
         "timeStart": "00:00",
         "timeEnd": "04:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -111,7 +111,7 @@ module.exports = {
         "timeStart": "06:00",
         "timeEnd": "10:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -121,7 +121,7 @@ module.exports = {
         "timeStart": "12:00",
         "timeEnd": "16:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -131,7 +131,7 @@ module.exports = {
         "timeStart": "18:00",
         "timeEnd": "22:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -141,7 +141,7 @@ module.exports = {
         "timeStart": "00:00",
         "timeEnd": "04:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -151,7 +151,7 @@ module.exports = {
         "timeStart": "06:00",
         "timeEnd": "10:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -161,7 +161,7 @@ module.exports = {
         "timeStart": "12:00",
         "timeEnd": "16:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -171,7 +171,7 @@ module.exports = {
         "timeStart": "18:00",
         "timeEnd": "22:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -181,7 +181,7 @@ module.exports = {
         "timeStart": "00:00",
         "timeEnd": "04:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -191,7 +191,7 @@ module.exports = {
         "timeStart": "06:00",
         "timeEnd": "10:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -201,7 +201,7 @@ module.exports = {
         "timeStart": "12:00",
         "timeEnd": "16:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -211,7 +211,7 @@ module.exports = {
         "timeStart": "18:00",
         "timeEnd": "22:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -221,7 +221,7 @@ module.exports = {
         "timeStart": "00:00",
         "timeEnd": "04:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -231,7 +231,7 @@ module.exports = {
         "timeStart": "06:00",
         "timeEnd": "10:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -241,7 +241,7 @@ module.exports = {
         "timeStart": "12:00",
         "timeEnd": "16:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -251,7 +251,7 @@ module.exports = {
         "timeStart": "18:00",
         "timeEnd": "22:00",
         "amount": 16000,
-      createdAt: new Date(),
+        createdAt: new Date(),
         updatedAt: new Date()
       },
       {
@@ -261,7 +261,7 @@ module.exports = {
         "timeStart": "00:00",
         "timeEnd": "04:00",
         "amount": 16000,
-        createdAt: new Date(),
+          createdAt: new Date(),
         updatedAt: new Date()
       }
     ]);

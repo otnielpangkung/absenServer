@@ -7,8 +7,11 @@ const fs = require('fs')
 const moment = require('moment')
 
 class MobileController {
+
+
 	static login(req, res) {
-		// console.log('masuk login', req.body);
+		console.log("logiiin");
+		console.log('masuk login', req.body);
 		Employee.findOne({
 			where: {
 				username: req.body.username,
@@ -17,7 +20,8 @@ class MobileController {
 			.then((data) => {
 				console.log(data.password);
 				if (data) {
-					let password = cekPass(req.body.password, data.password);
+					// let password = cekPass(req.body.password, data.password);
+					let password = req.body.password
 					console.log(password);
 					if (password) {
 						// console.log("Tesss");
