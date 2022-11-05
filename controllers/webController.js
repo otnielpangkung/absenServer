@@ -47,7 +47,9 @@ class WebController {
 	}
 	static getAllUser(req, res) {
 		console.log(req.loggedUser,"========");
-		User.findAll()
+		User.findAll({
+			attributes: { exclude: ['password', 'createdAt', 'updatedAt']},
+		})
 			.then((data) => {
 				let hasil = [];
 				data = data.map((e) => {
@@ -127,8 +129,6 @@ class WebController {
 	}
 
 	static getEmployees(req, res) {
-		// console.log("=========================");
-		// tanpa pagenation
 		Employee.findAll({
 			attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
 			order: [['id', 'desc']]
@@ -161,13 +161,14 @@ class WebController {
 				res.status(401).json(err);
 			});
 	}
-	static deleteEmployeee(req, res) {
+	static async deleteEmployeee(req, res) {
+
 		Absen.destroy({
 			where: {
 				EmployeeId: req.params.id,
 			},
 		}).then((data) => {
-			return Employee.destroy({
+			Employee.destroy({
 				where: {
 					id: req.params.id,
 				},
@@ -203,7 +204,68 @@ class WebController {
 			
 	}
 
+	static async resetPassEmployee(req,res) {
+
+		try {
+			let data = await Employee.update({
+				password: "admin123"
+			}, {
+				where: {
+					id: req.params.id
+				}
+			})
+
+			return res.status(200).json({ msg: 'Employee berhasil Dibuah' });
+
+		} catch(err) {
+			console.log(err);
+			res.status(500).json(err);	
+		}
+
+	}
+
 	// Absen
+	static async getAllAbsen(req,res) {
+
+		try {
+			let data = await Absen.findAll({
+				include: [
+					{
+						model: Employee,
+						attributes:{ exclude: ['createdAt','password','username','status', 'updatedAt']},
+					},
+					{
+						model: Branch,
+						attributes:{ exclude: ['createdAt', 'updatedAt','rekNumber','latitude','longitude' ]},
+					},
+				],
+				attributes:{ exclude: ['createdAt', 'updatedAt']},
+	
+			})
+	
+			if(req.query.BranchId > 0) {
+				data = data.filter(e => e.BranchId == req.query.BranchId)
+			}
+			if(req.query.EmployeeId > 0) {
+				data = data.filter(e => e.EmployeeId == req.query.EmployeeId)
+			}
+			if(req.query.startDate || req.query.endDate) {
+				data = data.filter(e => e.date <= req.query.endDate && e.date >= req.query.startDate)
+			} 
+			let dataLength = data.length;
+			const startIndex = (req.query.page - 1) * req.query.limit;
+			const endIndex = req.query.page * req.query.limit;
+			const result = data.slice(startIndex, endIndex);
+				return res.status(200).json({
+				total, result, dataLength
+			})
+			
+		}catch(err) {
+			console.log(err);
+			return es.status(500).json(err)
+		}
+	}
+
 	static getBranchAbsen(req, res) {
 	// menampilkan rekap absen sebulan dari tiap cabang
 	console.log(req.query);
@@ -211,16 +273,18 @@ class WebController {
 	let year = req.query.year
 		Absen.findAll({
 			include: [Employee],
-			attributes:{ exclude: ['typeInput','realLocation','absenPic','detail']},
-			where: {
-				BranchId: req.query.BranchId
-			}
+			attributes:{ exclude: ['typeInput','realLocation','absenPic','detail','createdAt', 'updatedAt']},
+
 		})
 		.then(data => {
+
+			if(req.query.BranchId > 0) {
+				data = data.filter(e => e.BranchId == req.query.BranchId)
+			}
 			// console.log(data, "==============");
 			let penm = []
 			let total = 0
-			data?.map(e => {
+			data.map(e => {
 				if(month == moment(e.date).format("MM") && year == moment(e.date).format("YYYY") && e.statusAbsen == 'setuju') {
 					total += e.amount
 					penm.push(e.dataValues)
@@ -274,7 +338,7 @@ class WebController {
 			let penm= []
 			let total = 0
 			let kehadiran = 0
-			data?.map(e => {
+			data.map(e => {
 				if( +year == +moment(e.date).format("YYYY")) {
 					console.log(moment(e.date).format("YYYY"));
 				}
@@ -326,8 +390,7 @@ class WebController {
 					}
 				}).then(data3 => {
 					// console.log(data3,"data3");
-					console.log(req.body.time , data2.timeStart , req.body.time, data2.timeEnd);
-					data3?.map(e => {
+					data3.map(e => {
 						if(e.time > data2.timeStart && e.time < data2.timeEnd) {
 							console.log("gagaaal");
 							return res.status(401).json({msg: "Periksa Kembali data anda"})
@@ -553,24 +616,54 @@ class WebController {
 		})
 
 	}
-	static editTypeAbsen(req, res) {
-		TypeAbsen.findOne(
-			{
-				typeName: req.body.typeName,
-				BranchId: req.body.BranchId,
-				amount: req.body.amount
-			}, {
-			where: {
-				id: req.params.id,
-				
+	static async editTypeAbsen(req, res) {
+		
+		try {
+			if(req.body.timeStart > req.body.timeEnd) {
+				throw {
+					status: 500,
+					msg: "Periksa Kembali data anda"
+				}
 			}
-		}).then(data => {
-			console.log(data);
-			res.status(200).json(data)
-		}).catch((err) => {
+
+			
+			let data = await TypeAbsen.findAll({
+	
+				where: {
+					BranchId: req.body.BranchId,
+				}
+			})
+	
+			data = await data.filter(e =>(req.body.timeStart >= e.timeStart && req.body.timeEnd <= e.timeEnd) || (
+				req.body.timeStart <= e.timeStart && req.body.timeEnd >= e.timeStart) || (
+				req.body.timeStart <= e.timeEnd && req.body.timeEnd >= e.timeEnd) || (
+				req.body.timeStart <= e.timeStart && req.body.timeEnd >= e.timeEnd
+				))
+			data = await  data.filter(e => e.id != req.params.id)
+			if(data.length > 0) {
+				return res.status(500).json({msg: "Anda Tidak dapat menambahkan data"})
+			}
+
+			let data2 = await  TypeAbsen.update(
+					{
+						typeName: req.body.typeName,
+						BranchId: req.body.BranchId,
+						amount: req.body.amount,
+						timeStart: req.body.timeStart,
+						timeEnd: req.body.timeEnd,
+					}, {
+					where: {
+						id: req.params.id,
+						
+					}}
+			)
+
+			return res.status(200).json({msg: "Anda Berhasil mengupdate data"})
+ 
+		} catch (err) {
 			console.log(err);
-			res.status(500).json(err);
-		})
+			return res.status(500).json({msg: "Anda Tidak dapat menambahkan data"})
+		}
 	}
 	static deleteTypeAbsen(req,res) {
 		Absen.destroy({
@@ -602,7 +695,7 @@ class WebController {
 		Absen.findAll()
 		.then(data => {
 			// console.log("yeeeees deleted");
-			data?.map(e => {
+			data.map(e => {
 				if(e.absenPic != null && e.date <= lessDate) {
 					console.log(e.absenPic);
 					fs.unlinkSync(`./uploads/${e.absenPic}`)
@@ -648,7 +741,7 @@ class WebController {
 			// console.log(data, "==============");
 			let penm = []
 			let total = 0
-			data?.map(e => {
+			data.map(e => {
 				if(month == moment(e.date).format("MM") && year == moment(e.date).format("YYYY") && e.statusAbsen == 'setuju') {
 					total += e.amount
 					penm.push(e.dataValues)
@@ -718,7 +811,7 @@ class WebController {
 			let penm= []
 			let total = 0
 			let kehadiran = 0
-			data?.map(e => {
+			data.map(e => {
 				if( +year == +moment(e.date).format("YYYY")) {
 				}
 				if(month == moment(e.date).format("MM") && year == moment(e.date).format("YYYY")) {

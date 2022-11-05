@@ -66,7 +66,6 @@ class MobileController {
 			let barcode = JSON.parse(req.body.barcode)
 			let lokasi = JSON.parse(req.body.lokasi)
 			let id = +JSON.parse(req.body.id)
-			let access_token = cekToken(req.headers.access_token)
 			let thisTime = new Date()
 			let getTime = moment(thisTime).format('HH:mm')
 			let dateTime = moment(thisTime).format('YYYY-MM-DD')
@@ -100,7 +99,7 @@ class MobileController {
                         date: dateTime
                     }
                 })
-				data99?.map(e => {
+				data99.map(e => {
 					if(e.time >= penm[0].timeStart && e.time <= penm[0].timeEnd) {
 						
 						throw {
@@ -115,20 +114,20 @@ class MobileController {
 						msg: "Waktu Absen Tidak Ditemukan"
 					}
                 } 
-				let data3 = await Absen.findAll({
-					where: {
-						BranchId: data.id,
-						TypeAbsenId: penm[0].id,
-						EmployeeId: id
-					}
-				})
-				let penm2 = data3.filter(e => (e.date == dateTime))
-				if(penm2.length >= 1) {
-					throw {
-						status: 500,
-						msg: "Sudah Melakukan Absen"
-					}
-				}
+				// let data3 = await Absen.findAll({
+				// 	where: {
+				// 		BranchId: data.id,
+				// 		TypeAbsenId: penm[0].id,
+				// 		EmployeeId: id
+				// 	}
+				// })
+				// let penm2 = data3.filter(e => (e.date == dateTime))
+				// if(penm2.length >= 1) {
+				// 	throw {
+				// 		status: 500,
+				// 		msg: "Sudah Melakukan Absen"
+				// 	}
+				// }
 				let data4 = await Absen.create({
 					EmployeeId: id,
 					BranchId: data.id,
