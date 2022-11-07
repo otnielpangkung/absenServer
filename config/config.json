@@ -1,24 +1,24 @@
 {
 	"development": {
-		"username": "root",
-		"password": null,
+		"username": "root3",
+		"password": "Niel12345",
 		"database": "test_absen",
 		"host": "127.0.0.1",
 		"dialect": "mysql",
 		"logging" : false
 	},
 	"test": {
-		"username": "root2",
-		"password": "password",
-		"database": "database_test",
+		"username": "root3",
+		"password": "Niel12345",
+		"database": "test_absen",
 		"host": "127.0.0.1",
 		"dialect": "mysql",
 		"logging" : false
 
 	},
 	"production": {
-		"username": "root2",
-		"password": "password",
+		"username": "root3",
+		"password": "Niel12345",
 		"database": "test_absen",
 		"host": "127.0.0.1",
 		"dialect": "mysql",
