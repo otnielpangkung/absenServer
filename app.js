@@ -6,8 +6,17 @@ const cors = require('cors');
 const WebController = require('./controllers/webController');
 const path = require('path')
 var morgan = require('morgan')
+const fs = require('fs')
+const https=require('https')
 
-app.use(morgan('combined'))
+const options = {
+	key:fs.readFileSync('./cert/key.pem'),
+	cert:fs.readFileSync('./cert/cert.pem')
+}
+const sslServer=https.createServer(options,app);
+
+	
+	app.use(morgan('combined'))
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,6 +30,7 @@ app.get('/', (req, res) => {
 	res.send('Tes 4567891011');
 });
 
-app.listen(port, () => {
-	console.log(`Example app listening at http://localhost:${port}`);
-});
+
+sslServer.listen(port,()=>{
+	console.log(`Example app listening at http://localhost:${port}ss`);
+	})

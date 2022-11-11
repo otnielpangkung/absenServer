@@ -124,6 +124,9 @@ let hasil  = aa.filter(e =>{
     return text.includes('alam')
 })
 
+let cc = ['admin', 'staff', 'boss']
+
+if(cc.includes('admin')) console.log("yesss");
 console.log(hasil);
 
 
